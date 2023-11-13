@@ -8,6 +8,15 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+      - name: Cache Dependency-Check data
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.m2/repository
+            ~/dependency-check-data
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
       - name: Build project with Maven
         run: mvn clean install
       - name: Depcheck
@@ -22,11 +31,6 @@ jobs:
             --failOnCVSS 7
             --enableRetired
             --enableExperimental
-      - name: cache 
-        uses: actions/cache@v3
-        with:
-          path: /home/runner/OWASP-Dependency-Check/data/cache
-          key: ${{ hashFiles('./pom.xml') }}
       - name: Upload Test results
         uses: actions/upload-artifact@master
         with:
